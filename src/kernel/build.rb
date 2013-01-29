@@ -30,6 +30,8 @@ asm = 'fasm'
 asmflags = ''
 asmout = ''
 asmquiet = true
+objcp = 'objcopy'
+objcpflags = '-I binary -O elf32-i386 -B i386'
 
 
 system('mkdir -p obj')
@@ -43,19 +45,21 @@ Find.find('.') do |path|
 
     path = Pathname.new(path).cleanpath.to_s
 
-    next if path[0..3] == 'obj/'
+    next if (path[0..3] == 'obj/') || (File.dirname(path) == '.')
 
 
-    obj = "obj/#{path.gsub('/', '__')}.o"
+    obj = "#{Dir.pwd}/obj/#{path.gsub('/', '__')}.o"
     objs << obj
 
     next if File.file?(obj) && (File.mtime(obj) > File.mtime(path))
 
     case File.extname(path)
     when '.c'
-        exec("#{cc} #{cflags} -c #{path} -o #{obj}")
+        exec("#{cc} #{cflags} -c '#{path}' -o '#{obj}'")
     when '.asm'
-        exec("#{asm} #{asmflags} #{path} #{asmout} #{obj} #{asmquiet ? '&> /dev/null' : ''}")
+        exec("#{asm} #{asmflags} '#{path}' #{asmout} '#{obj}' #{asmquiet ? '&> /dev/null' : ''}")
+    when '.rb'
+        exec("cd #{File.dirname(path)} && #{objcp} #{objcpflags} '#{File.basename(path)}' '#{obj}'")
     end
 end
 

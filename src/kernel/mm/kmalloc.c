@@ -2,6 +2,7 @@
 #include <pmm.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 
 #define PAGE_SHIFT 12
