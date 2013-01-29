@@ -27,6 +27,12 @@ SECTIONS
         *(.bss)
         *(COMMON)
     }
+    ruby_env ALIGN(64) :
+    {
+        ruby_env_start = .;
+        *(ruby_env)
+        ruby_env_end = .;
+    }
 
     __kernel_elf_end = .;
 }
