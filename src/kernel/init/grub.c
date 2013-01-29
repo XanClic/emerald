@@ -9,7 +9,7 @@
 static uint32_t mbhdr[] __attribute__((section(".multiboot"), used)) = { 0x1BADB002, 0x00000003, (uint32_t)-(0x1BADB002 + 0x00000003) };
 
 
-static struct multiboot_info *mboot;
+struct multiboot_info *mboot;
 
 static struct memory_map *mmap;
 static int mmap_length;

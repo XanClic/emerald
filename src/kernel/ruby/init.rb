@@ -1,74 +1,46 @@
 # coding: utf-8
+# Support for loading ruby source files
 
-class String
-    def asc
-        Helper.asc(self)
-    end
-end
+def mboot_find(file)
+    0.upto($mboot_mod_count - 1) do |i|
+        ofs = $mboot_mod_addr + i * 16
 
-
-class Console
-    @@base   = 0xb8000
-    @@width  = 80
-    @@height = 25
-
-    @@colors = { black:    0, darkblue:    1, darkgreen: 2, darkcyan: 3,
-                 darkred:  4, darkmagenta: 5, brown:     6, gray:     7,
-                 darkgray: 8, blue:        9, green:    10, cyan:    11,
-                 red:     12, magenta:    13, yellow:   14, white:   15 }
-
-
-    def initialize
-        @x = 0
-        @y = 0
-        @attr = 7
-    end
-
-
-    def puts(string)
-        string.each_char do |chr|
-            case chr
-            when "\n"
-                @y += 1
-                @x = 0
-            when "\r"
-                @x = 0
-            else
-                pos = @@base + (@y * @@width + @x) * 2
-
-                Memory[pos    ] = chr.asc
-                Memory[pos + 1] = @attr
-
-                @x += 1
-                if @x >= @@width
-                    @x = 0
-                    @y += 1
-                end
-            end
-
-            if @y >= @height
-                Memory.memmove(@@base, @@base + @@width * 2, (@@height - 1) * @@width * 2)
-                @y -= 1
-            end
+        if Memory.cstr(Memory32[ofs + 8]) == file
+            return [Memory32[ofs], Memory32[ofs + 4] - Memory32[ofs]]
         end
+        Helper.load(Memory32[ofs], Memory32[ofs + 4] - Memory32[ofs])
     end
 
-
-    def clear
-        Memory.memset(@@base, 0, @@width * @@height * 2)
-    end
-
-
-    def set_fg(color)
-        @attr = @@colors[color]
-    end
+    return nil
 end
+
+
+def init_mboot()
+    if !(Memory32[MBOOT] & (1 << 3))
+        raise 'No multiboot modules given'
+    end
+
+    $mboot_mod_count = Memory32[MBOOT + 20]
+    $mboot_mod_addr  = Memory32[MBOOT + 24]
+end
+
+
+
+init_mboot()
+
+
+
+load 'console.rb'
 
 
 out = Console.new
 
 out.clear
 out.set_fg(:darkgreen)
-out.puts("Emerald reporting in!\n")
-
-load 'blub'
+out.puts("Emerald")
+out.set_fg(:gray)
+out.puts(" reporting in!\nRunning on ")
+out.set_fg(:darkred)
+out.puts("mruby")
+out.set_fg(:gray)
+out.puts(".\n")

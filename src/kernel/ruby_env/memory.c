@@ -4,29 +4,58 @@
 
 #include "mruby.h"
 #include "mruby/class.h"
+#include "mruby/string.h"
 #include "mruby/value.h"
 
 
-static mrb_value memory_peek(mrb_state *mrbs, mrb_value self)
+#define def_memory_peek(width) \
+    static mrb_value memory_peek##width(mrb_state *mrbs, mrb_value self) \
+    { \
+        (void)self; \
+        \
+        mrb_int address; \
+        mrb_get_args(mrbs, "i", &address); \
+        \
+        return mrb_fixnum_value(*((uint##width##_t *)address)); \
+    }
+
+#define def_memory_poke(width) \
+    static mrb_value memory_poke##width(mrb_state *mrbs, mrb_value self) \
+    { \
+        (void)self; \
+        \
+        mrb_int address, value; \
+        mrb_get_args(mrbs, "ii", &address, &value); \
+        \
+        *(uint##width##_t *)address = value; \
+        \
+        return mrb_nil_value(); \
+    }
+
+def_memory_peek(8)
+def_memory_poke(8)
+def_memory_peek(16)
+def_memory_poke(16)
+def_memory_poke(32)
+def_memory_peek(64)
+def_memory_poke(64)
+
+    static mrb_value memory_peek32(mrb_state *mrbs, mrb_value self)
+    {
+        (void)self;
+        mrb_int address;
+        mrb_get_args(mrbs, "i", &address);
+        return mrb_fixnum_value(*((uint32_t *)address));
+    }
+
+static mrb_value memory_cstr(mrb_state *mrbs, mrb_value self)
 {
     (void)self;
 
     mrb_int address;
     mrb_get_args(mrbs, "i", &address);
 
-    return mrb_fixnum_value(*((uint8_t *)address));
-}
-
-static mrb_value memory_poke(mrb_state *mrbs, mrb_value self)
-{
-    (void)self;
-
-    mrb_int address, value;
-    mrb_get_args(mrbs, "ii", &address, &value);
-
-    *(uint8_t *)address = value;
-
-    return mrb_nil_value();
+    return mrb_str_new_cstr(mrbs, (const char *)address);
 }
 
 static mrb_value memory_memset(mrb_state *mrbs, mrb_value self)
@@ -54,10 +83,35 @@ static void init(mrb_state *mrbs)
 {
     struct RClass *memclass = mrb_define_class(mrbs, "Memory", mrbs->object_class);
 
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek,    ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke,    ARGS_REQ(2));
+    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek8,   ARGS_REQ(1));
+    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke8,   ARGS_REQ(2));
+    mrb_define_class_method(mrbs, memclass, "cstr",    memory_cstr,    ARGS_REQ(1));
     mrb_define_class_method(mrbs, memclass, "memset",  memory_memset,  ARGS_REQ(3));
     mrb_define_class_method(mrbs, memclass, "memmove", memory_memmove, ARGS_REQ(3));
+
+
+    memclass = mrb_define_class(mrbs, "Memory8", mrbs->object_class);
+
+    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek8,   ARGS_REQ(1));
+    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke8,   ARGS_REQ(1));
+
+
+    memclass = mrb_define_class(mrbs, "Memory16", mrbs->object_class);
+
+    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek16,   ARGS_REQ(1));
+    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke16,   ARGS_REQ(1));
+
+
+    memclass = mrb_define_class(mrbs, "Memory32", mrbs->object_class);
+
+    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek32,   ARGS_REQ(1));
+    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke32,   ARGS_REQ(1));
+
+
+    memclass = mrb_define_class(mrbs, "Memory64", mrbs->object_class);
+
+    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek64,   ARGS_REQ(1));
+    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke64,   ARGS_REQ(1));
 }
 
 
