@@ -22,6 +22,8 @@ extern int __fp_exceptions;
 
 #define FE_DFL_ENV 0
 
+#define HAVE_LOG2
+
 #define isinff(x) ((x) == __builtin_inff())
 #define isinfd(x) ((x) == __builtin_inf ())
 #define isinfl(x) ((x) == __builtin_infl())
