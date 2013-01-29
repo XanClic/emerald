@@ -23,7 +23,7 @@ libdirs = ['../../mruby/build/µxoµcota/lib', File.dirname(`gcc -m32 -print-lib
 libs    = ['mruby', 'gcc']
 
 cc = 'gcc'
-cflags = "-mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -ffreestanding -nostartfiles -nostdinc -nodefaultlibs -m32 -std=c11 -O3 -g2 -Wall -Wextra #{incdirs.map { |d| "'-I#{d}'" } * ' '}"
+cflags = "-mno-mmx -mno-sse -mno-sse2 -mno-sse3 -mno-ssse3 -ffreestanding -nostartfiles -nostdinc -nodefaultlibs -m32 -std=gnu11 -O3 -g2 -Wall -Wextra #{incdirs.map { |d| "'-I#{d}'" } * ' '}"
 ld = 'ld'
 ldflags = "-entry 0x100000 -T link.ld --nmagic #{libdirs.map { |d| "'-L#{d}'" } * ' '}"
 asm = 'fasm'

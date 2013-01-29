@@ -70,3 +70,5 @@ out = Console.new
 out.clear
 out.set_fg(:darkgreen)
 out.puts("Emerald reporting in!\n")
+
+load 'blub'
