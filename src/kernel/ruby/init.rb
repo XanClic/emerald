@@ -61,6 +61,8 @@ class Console
 
     def set_fg(color)
         @attr = @@colors[color]
+
+        bwbwbbahaha
     end
 end
 
