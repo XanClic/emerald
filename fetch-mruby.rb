@@ -29,10 +29,10 @@ die unless content
 
 content = "# coding: utf-8\n\n" + content + <<-EOS
 
-MRuby::CrossBuild.new('µxoµcota') do |conf|
+MRuby::CrossBuild.new('emerald') do |conf|
   toolchain :gcc
 
-  conf.cc.flags << "-std=c11 -m32 -ffreestanding -nostartfiles -nostdinc -nodefaultlibs '-I#{Dir.pwd}/src/include'"
+  conf.cc.flags << "-std=c11 -m32 -ffreestanding -nostartfiles -nostdinc -nodefaultlibs '-I#{Dir.pwd}/src/include' -DDISABLE_STDIO -DDISABLE_TIME"
 
   conf.bins = %w()
 end
@@ -40,3 +40,13 @@ EOS
 
 
 IO.write('mruby/build_config.rb', content)
+
+
+status('Patching src/cdump.c...')
+
+content = IO.read('mruby/src/cdump.c')
+die unless content
+
+content = "#ifndef DISABLE_STDIO\n\n" + content + "\n#endif\n"
+
+IO.write('mruby/src/cdump.c', content)
