@@ -46,6 +46,9 @@ static mrb_value asc(mrb_state *mrbs, mrb_value self)
 }
 
 
+extern const void _binary_init_rb_start, _binary_init_rb_size;
+
+
 void main(void *boot_info)
 {
     get_boot_info(boot_info);
@@ -71,5 +74,5 @@ void main(void *boot_info)
     mrb_define_class_method(mrbs, memclass, "[]=", memory_poke, ARGS_REQ(2));
 
 
-    mrb_load_string(mrbs, "class String\n    def asc\n        Helper.asc(self)\n    end\nend\n\nMemory[0xB8000] = 'A'.asc");
+    mrb_load_nstring(mrbs, &_binary_init_rb_start, (uintptr_t)&_binary_init_rb_size);
 }
