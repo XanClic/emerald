@@ -56,10 +56,18 @@ void emerg_puts(const char *str)
 }
 
 
-noreturn void emerg(const char *str)
+noreturn void emerg(mrb_state *mrbs, mrb_value exc)
 {
-    emerg_puts("FATAL (internal exception)\n");
-    emerg_puts(str);
+    emerg_puts("FATAL (internal exception)\n\n");
+
+    mrb_value str = mrb_funcall(mrbs, exc, "message", 0);
+    emerg_puts(mrb_string_value_cstr(mrbs, &str));
+
+    emerg_puts("\n");
+
+    mrb_value bt_arr = mrb_funcall(mrbs, exc, "backtrace", 0);
+    mrb_value bt_str = mrb_funcall(mrbs, bt_arr, "join", 1, mrb_str_new_cstr(mrbs, "\n"));
+    emerg_puts(mrb_string_value_cstr(mrbs, &bt_str));
 
     for (;;)
         __asm__ __volatile__ ("cli;hlt");
@@ -91,10 +99,6 @@ void main(void *boot_info)
 
 
         if (mrbs->exc != NULL)
-        {
-            mrb_value str = mrb_funcall(mrbs, mrb_obj_value(mrbs->exc), "message", 0);
-
-            emerg(mrb_string_value_cstr(mrbs, &str));
-        }
+            emerg(mrbs, mrb_obj_value(mrbs->exc));
     }
 }
