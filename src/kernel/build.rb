@@ -19,7 +19,7 @@ end
 
 
 incdirs = ['../include', '../../mruby/include']
-libdirs = ['../../mruby/build/µxoµcota/lib', File.dirname(`gcc -m32 -print-libgcc-file-name`)]
+libdirs = ['../../mruby/build/emerald/lib', File.dirname(`gcc -m32 -print-libgcc-file-name`)]
 libs    = ['mruby', 'gcc']
 
 cc = 'gcc'

@@ -11,21 +11,6 @@
 #include "mruby/value.h"
 
 
-extern const void _binary_prime_rb_start, _binary_prime_rb_size;
-extern const void _binary_init_rb_start, _binary_init_rb_size;
-
-
-extern volatile int func_count;
-extern volatile mrb_sym *funcs;
-
-
-mrb_state *pmrbs;
-
-
-#define ARRSZ(x) (sizeof(x) / sizeof((x)[0]))
-    #define FOREACH(var, arr) for (struct { int i; typeof((arr)[0]) v; } var = { 0, (arr)[0] }; var.i < (int)ARRSZ(arr); var.v = (arr)[++var.i])
-
-
 void emerg_puts(const char *str)
 {
     static int x = 0, y = 12;
@@ -74,6 +59,9 @@ noreturn void emerg(mrb_state *mrbs, mrb_value exc)
 }
 
 
+extern const void _binary_init_rb_start, _binary_init_rb_size;
+
+
 void main(void *boot_info)
 {
     get_boot_info(boot_info);
@@ -81,24 +69,13 @@ void main(void *boot_info)
     init_pmm();
 
 
-    mrb_state *imrbs;
+    mrb_state *mrbs  = mrb_open();
 
-    struct { mrb_state **target; const void *ptr; size_t sz; } rbsrc[] = {
-        { &pmrbs, &_binary_prime_rb_start, (uintptr_t)&_binary_prime_rb_size },
-        { &imrbs, &_binary_init_rb_start,  (uintptr_t)&_binary_init_rb_size  }
-    };
+    init_ruby_environment(mrbs);
 
-
-    FOREACH(rb, rbsrc)
-    {
-        mrb_state *mrbs = *rb.v.target = mrb_open();
-
-        init_ruby_environment(mrbs);
-
-        mrb_load_nstring(mrbs, rb.v.ptr, rb.v.sz);
+    mrb_load_nstring(mrbs, &_binary_init_rb_start, (uintptr_t)&_binary_init_rb_size);
 
 
-        if (mrbs->exc != NULL)
-            emerg(mrbs, mrb_obj_value(mrbs->exc));
-    }
+    if (mrbs->exc != NULL)
+        emerg(mrbs, mrb_obj_value(mrbs->exc));
 }
