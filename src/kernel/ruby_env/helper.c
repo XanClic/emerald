@@ -29,7 +29,7 @@ static mrb_value load(mrb_state *mrbs, mrb_value self)
     mrb_value name;
     mrb_get_args(mrbs, "S", &name);
 
-    mrb_value ret = mrb_funcall(mrbs, mrb_nil_value(), "mboot_find", 1, name);
+    mrb_value ret = mrb_funcall(mrbs, mrb_nil_value(), "load_file_find", 1, name);
 
     if (mrb_nil_p(ret))
     {
@@ -44,6 +44,24 @@ static mrb_value load(mrb_state *mrbs, mrb_value self)
 }
 
 
+static mrb_value give(mrb_state *mrbs, mrb_value self)
+{
+    (void)self;
+
+    char *string;
+    mrb_get_args(mrbs, "z", &string);
+
+    char *out = (char *)0xb8000;
+    while (*string)
+    {
+        *(out++) = *(string++);
+        *(out++) = 15;
+    }
+
+    return mrb_nil_value();
+}
+
+
 static void init(mrb_state *mrbs)
 {
     struct RClass *helper = mrb_define_module(mrbs, "Helper");
@@ -52,6 +70,7 @@ static void init(mrb_state *mrbs)
 
 
     mrb_define_method(mrbs, mrbs->object_class, "load", load, ARGS_REQ(1));
+    mrb_define_method(mrbs, mrbs->object_class, "give", give, ARGS_REQ(1));
 }
 
 

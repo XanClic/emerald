@@ -48,11 +48,14 @@ noreturn void emerg(mrb_state *mrbs, mrb_value exc)
     mrb_value str = mrb_funcall(mrbs, exc, "message", 0);
     emerg_puts(mrb_string_value_cstr(mrbs, &str));
 
+    // mruby doesn't seem to support backtraces so far
+    /*
     emerg_puts("\n");
 
     mrb_value bt_arr = mrb_funcall(mrbs, exc, "backtrace", 0);
     mrb_value bt_str = mrb_funcall(mrbs, bt_arr, "join", 1, mrb_str_new_cstr(mrbs, "\n"));
     emerg_puts(mrb_string_value_cstr(mrbs, &bt_str));
+    */
 
     for (;;)
         __asm__ __volatile__ ("cli;hlt");
@@ -64,7 +67,8 @@ extern const void _binary_init_rb_start, _binary_init_rb_size;
 
 void main(void *boot_info)
 {
-    get_boot_info(boot_info);
+    if (!get_boot_info(boot_info))
+        return;
 
     init_pmm();
 

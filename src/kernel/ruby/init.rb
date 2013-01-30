@@ -1,32 +1,62 @@
 # coding: utf-8
 # Support for loading ruby source files
 
-def mboot_find(file)
-    0.upto($mboot_mod_count - 1) do |i|
-        ofs = $mboot_mod_addr + i * 16
+class Tar
+    def initialize(address)
+        @base = address
+    end
 
-        if Memory.cstr(Memory32[ofs + 8]) == file
-            return [Memory32[ofs], Memory32[ofs + 4] - Memory32[ofs]]
+    def each
+        addr = @base
+
+        while Memory8[addr] != 0
+            name = Memory.cstr(addr) # FIXME
+
+            size = 0
+            (0..11).each do |pos|
+                size = (size << 3) + Memory8[addr + 124 + pos] - 48
+            end
+
+            yield name, addr + 512, size
+
+            addr += 512 + ((size + 511) & ~511)
         end
-        Helper.load(Memory32[ofs], Memory32[ofs + 4] - Memory32[ofs])
+    end
+end
+
+
+class Multiboot
+    def initialize(address)
+        @base = address
+
+        @mboot_mod_count = Memory32[@base + 20]
+        @mboot_mod_addr  = Memory32[@base + 24]
+
+        if ((Memory32[@base] & (1 << 3)) == 0) || (@mboot_mod_count == 0)
+            raise 'No multiboot modules given'
+        end
+
+        @tar = Tar.new(Memory32[@mboot_mod_addr])
+    end
+
+    def tar
+        @tar
+    end
+end
+
+
+def load_file_find(file)
+    $mboot.tar.each do |name, addr, size|
+        give name
+        return [addr, size] if name == file
     end
 
     return nil
 end
 
 
-def init_mboot()
-    if !(Memory32[MBOOT] & (1 << 3))
-        raise 'No multiboot modules given'
-    end
 
-    $mboot_mod_count = Memory32[MBOOT + 20]
-    $mboot_mod_addr  = Memory32[MBOOT + 24]
-end
-
-
-
-init_mboot()
+$mboot = Multiboot.new(MBOOT)
 
 
 
