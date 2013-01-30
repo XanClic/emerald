@@ -32,12 +32,15 @@ asmout = ''
 asmquiet = true
 objcp = 'objcopy'
 objcpflags = '-I binary -O elf32-i386 -B i386'
+tar = 'tar'
+tarflags = 'cf'
 
 
 system('mkdir -p obj')
 
 
 objs = []
+tarl = []
 
 
 Find.find('.') do |path|
@@ -48,10 +51,16 @@ Find.find('.') do |path|
     next if (path[0..3] == 'obj/') || (File.dirname(path) == '.')
 
 
-    obj = "#{Dir.pwd}/obj/#{path.gsub('/', '__')}.o"
-    objs << obj
+    build_obj = (path[0..4] != 'ruby/') || (path == 'ruby/init.rb')
 
-    next if File.file?(obj) && (File.mtime(obj) > File.mtime(path))
+
+    if build_obj
+        obj = "#{Dir.pwd}/obj/#{path.gsub('/', '__')}.o"
+        objs << obj
+
+        next if File.file?(obj) && (File.mtime(obj) > File.mtime(path))
+    end
+
 
     case File.extname(path)
     when '.c'
@@ -59,9 +68,15 @@ Find.find('.') do |path|
     when '.asm'
         exec("#{asm} #{asmflags} '#{path}' #{asmout} '#{obj}' #{asmquiet ? '&> /dev/null' : ''}")
     when '.rb'
-        exec("cd #{File.dirname(path)} && #{objcp} #{objcpflags} '#{File.basename(path)}' '#{obj}'")
+        if build_obj
+            exec("cd #{File.dirname(path)} && #{objcp} #{objcpflags} '#{File.basename(path)}' '#{obj}'")
+        else
+            tarl << path
+        end
     end
 end
 
 
-exec("#{ld} #{ldflags} obj/*.o -o kernel #{libs.map { |l| "-l#{l}" } * ' '}")
+exec("#{ld} #{ldflags} #{objs.map { |o| "'#{o}'" } * ' '} -o kernel #{libs.map { |l| "-l#{l}" } * ' '}")
+
+exec("cd ruby && #{tar} #{tarflags} ../initrd.tar #{tarl.map { |t| "'#{t[5..-1]}'" } * ' '}")
