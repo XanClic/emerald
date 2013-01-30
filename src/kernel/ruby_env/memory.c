@@ -81,37 +81,37 @@ static mrb_value memory_memmove(mrb_state *mrbs, mrb_value self)
 
 static void init(mrb_state *mrbs)
 {
-    struct RClass *memclass = mrb_define_class(mrbs, "Memory", mrbs->object_class);
+    struct RClass *memmodule = mrb_define_module(mrbs, "Memory");
 
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek8,   ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke8,   ARGS_REQ(2));
-    mrb_define_class_method(mrbs, memclass, "cstr",    memory_cstr,    ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "memset",  memory_memset,  ARGS_REQ(3));
-    mrb_define_class_method(mrbs, memclass, "memmove", memory_memmove, ARGS_REQ(3));
-
-
-    memclass = mrb_define_class(mrbs, "Memory8", mrbs->object_class);
-
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek8,   ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke8,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]",      memory_peek8,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]=",     memory_poke8,   ARGS_REQ(2));
+    mrb_define_module_function(mrbs, memmodule, "cstr",    memory_cstr,    ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "memset",  memory_memset,  ARGS_REQ(3));
+    mrb_define_module_function(mrbs, memmodule, "memmove", memory_memmove, ARGS_REQ(3));
 
 
-    memclass = mrb_define_class(mrbs, "Memory16", mrbs->object_class);
+    memmodule = mrb_define_module(mrbs, "Memory8");
 
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek16,   ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke16,   ARGS_REQ(1));
-
-
-    memclass = mrb_define_class(mrbs, "Memory32", mrbs->object_class);
-
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek32,   ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke32,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]",      memory_peek8,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]=",     memory_poke8,   ARGS_REQ(1));
 
 
-    memclass = mrb_define_class(mrbs, "Memory64", mrbs->object_class);
+    memmodule = mrb_define_module(mrbs, "Memory16");
 
-    mrb_define_class_method(mrbs, memclass, "[]",      memory_peek64,   ARGS_REQ(1));
-    mrb_define_class_method(mrbs, memclass, "[]=",     memory_poke64,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]",      memory_peek16,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]=",     memory_poke16,   ARGS_REQ(1));
+
+
+    memmodule = mrb_define_module(mrbs, "Memory32");
+
+    mrb_define_module_function(mrbs, memmodule, "[]",      memory_peek32,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]=",     memory_poke32,   ARGS_REQ(1));
+
+
+    memmodule = mrb_define_module(mrbs, "Memory64");
+
+    mrb_define_module_function(mrbs, memmodule, "[]",      memory_peek64,   ARGS_REQ(1));
+    mrb_define_module_function(mrbs, memmodule, "[]=",     memory_poke64,   ARGS_REQ(1));
 }
 
 

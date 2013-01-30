@@ -1,5 +1,6 @@
 #include <kassert.h>
 #include <ruby_env.h>
+#include <stdlib.h>
 
 #include "mruby.h"
 #include "mruby/array.h"
@@ -8,7 +9,7 @@
 #include "mruby/value.h"
 
 
-static mrb_value asc(mrb_state *mrbs, mrb_value self)
+static mrb_value h_asc(mrb_state *mrbs, mrb_value self)
 {
     (void)self;
 
@@ -22,7 +23,7 @@ static mrb_value asc(mrb_state *mrbs, mrb_value self)
 }
 
 
-static mrb_value load(mrb_state *mrbs, mrb_value self)
+static mrb_value h_load(mrb_state *mrbs, mrb_value self)
 {
     (void)self;
 
@@ -44,19 +45,25 @@ static mrb_value load(mrb_state *mrbs, mrb_value self)
 }
 
 
-static mrb_value give(mrb_state *mrbs, mrb_value self)
+static mrb_value h_malloc(mrb_state *mrbs, mrb_value self)
 {
     (void)self;
 
-    char *string;
-    mrb_get_args(mrbs, "z", &string);
+    mrb_int sz;
+    mrb_get_args(mrbs, "i", &sz);
 
-    char *out = (char *)0xb8000;
-    while (*string)
-    {
-        *(out++) = *(string++);
-        *(out++) = 15;
-    }
+    return mrb_fixnum_value((mrb_int)malloc(sz));
+}
+
+
+static mrb_value h_free(mrb_state *mrbs, mrb_value self)
+{
+    (void)self;
+
+    mrb_int ptr;
+    mrb_get_args(mrbs, "i", &ptr);
+
+    free((void *)ptr);
 
     return mrb_nil_value();
 }
@@ -64,13 +71,10 @@ static mrb_value give(mrb_state *mrbs, mrb_value self)
 
 static void init(mrb_state *mrbs)
 {
-    struct RClass *helper = mrb_define_module(mrbs, "Helper");
-
-    mrb_define_class_method(mrbs, helper, "asc",  asc,  ARGS_REQ(1));
-
-
-    mrb_define_method(mrbs, mrbs->object_class, "load", load, ARGS_REQ(1));
-    mrb_define_method(mrbs, mrbs->object_class, "give", give, ARGS_REQ(1));
+    mrb_define_method(mrbs, mrbs->object_class, "asc",    h_asc,    ARGS_REQ(1));
+    mrb_define_method(mrbs, mrbs->object_class, "load",   h_load,   ARGS_REQ(1));
+    mrb_define_method(mrbs, mrbs->object_class, "malloc", h_malloc, ARGS_REQ(1));
+    mrb_define_method(mrbs, mrbs->object_class, "free",   h_free,   ARGS_REQ(1));
 }
 
 
