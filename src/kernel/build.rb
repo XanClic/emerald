@@ -13,7 +13,7 @@ end
 
 
 if ARGV[0] == 'clean'
-    exec("rm -f kernel obj/*.o")
+    exec("rm -f kernel initrd.tar obj/*.o")
     exit 0
 end
 
