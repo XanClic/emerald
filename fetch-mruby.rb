@@ -17,7 +17,7 @@ die unless system('git clone git://github.com/mruby/mruby.git')
 
 # If anything should break in future mruby versions, comment this line in
 # (on a different note: Update the hash as often as possible)
-# die unless system('cd mruby; git checkout 0410bb7623a27ac427f190e3144c85b6446bec05')
+# die unless system('cd mruby; git checkout e43216c45d537b456e8225b66e0c10b0703b31a0')
 
 
 status('Patching build_config.rb...')
@@ -40,13 +40,3 @@ EOS
 
 
 IO.write('mruby/build_config.rb', content)
-
-
-status('Patching src/cdump.c...')
-
-content = IO.read('mruby/src/cdump.c')
-die unless content
-
-content = "#ifndef DISABLE_STDIO\n\n" + content + "\n#endif\n"
-
-IO.write('mruby/src/cdump.c', content)

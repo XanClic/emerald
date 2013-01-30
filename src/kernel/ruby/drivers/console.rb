@@ -1,10 +1,3 @@
-class String
-    def asc
-        Helper.asc(self)
-    end
-end
-
-
 class Console
     @@base   = 0xb8000
     @@width  = 80

@@ -1,5 +1,5 @@
 # coding: utf-8
-# Support for loading ruby source files
+# Support for loading ruby source files and all the initialization stuff
 
 class Tar
     def initialize(address)
@@ -13,7 +13,7 @@ class Tar
             name = Memory.cstr(addr) # FIXME
 
             size = 0
-            (0..11).each do |pos|
+            (0..10).each do |pos|
                 size = (size << 3) + Memory8[addr + 124 + pos] - 48
             end
 
@@ -47,7 +47,6 @@ end
 
 def load_file_find(file)
     $mboot.tar.each do |name, addr, size|
-        give name
         return [addr, size] if name == file
     end
 
@@ -60,17 +59,54 @@ $mboot = Multiboot.new(MBOOT)
 
 
 
-load 'console.rb'
+load 'patches/array.rb'
+load 'patches/float.rb'
+load 'patches/string.rb'
+
+load 'helpers/struct.rb'
+
+load 'drivers/console.rb'
+load 'drivers/gdt.rb'
+
 
 
 out = Console.new
 
 out.clear
 out.set_fg(:darkgreen)
-out.puts("Emerald")
+out.puts('Emerald')
 out.set_fg(:gray)
 out.puts(" reporting in!\nRunning on ")
 out.set_fg(:darkred)
-out.puts("mruby")
+out.puts('mruby')
 out.set_fg(:gray)
-out.puts(".\n")
+out.puts(".\n\n")
+
+
+class Console
+    def status(msg)
+        puts('%-70s' % msg)
+    end
+
+    def status_completion(msg, color)
+        set_fg(:blue); puts('[')
+        set_fg(color); puts(msg)
+        set_fg(:blue); puts(']')
+        set_fg(:gray)
+    end
+
+    def done
+        status_completion(' DONE ', :white)
+    end
+
+    def failed
+        status_completion(' FAIL ', :red)
+    end
+end
+
+
+out.status('Changing to custom GDT...')
+
+build_gdt()
+
+out.done
