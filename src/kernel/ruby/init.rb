@@ -92,7 +92,7 @@ class Console
         set_fg(:blue); puts('[')
         set_fg(color); puts(msg)
         set_fg(:blue); puts(']')
-        set_fg(:gray)
+        set_fg(:gray); puts("\n")
     end
 
     def done
