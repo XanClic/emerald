@@ -7,7 +7,7 @@ class XDTDesc
     })
 
     @@type_hash = {
-        sys_np:   0x00, # not present
+        sys_np:   0x10, # not present
         sys_rx:   0x9A, # readable/executable
         sys_rw:   0x92, # readable/writable
         sys_r:    0x90, # readable
@@ -29,7 +29,7 @@ class XDTDesc
     def self.get(base, index)
         desc = @@gen_struct.instance(base + index * 8)
 
-        if desc.type & (1 << 4)
+        if (desc.type & (1 << 4)) != 0
             return XDTDescSegment.new(base, index)
         else
             return XDTDescGate.new(base, index)
@@ -146,8 +146,8 @@ class XDTDescGate < XDTDesc
 
 
     def base=(addr)
-        @desc.base_lo = addr & 0xFFFF
-        @desc.base_hi = addr >> 16
+        @desc.offset_lo = addr & 0xFFFF
+        @desc.offset_hi = addr >> 16
     end
 
 
