@@ -5,27 +5,29 @@ class IDT < XDT
     def load
         X86.lidt(@xdtr)
     end
-end
 
 
-def build_idt
-    $idt = IDT.new(256)
+    def self.init
+        $idt = IDT.new(256)
 
-    (0..31).each do |exc|
-        $idt[exc].type = :sys_np
-    end
 
-    (32..47).each do |irq|
-        $idt[irq].type = :sys_np
-    end
-
-    (48..255).each do |other|
-        if other == 0xa2 # syscall
-            $idt[other].type = :sys_np
-        else
-            $idt[other].type = :sys_np
+        (0..19).each do |exc|
+            $idt[exc].type     = :sys_intr
+            $idt[exc].base     = X86.intr_handler_addr(exc)
+            $idt[exc].selector = SLC_SYS_CODE
         end
-    end
 
-    $idt.load
+        (32..47).each do |irq|
+            $idt[irq].type     = :sys_intr
+            $idt[irq].base     = X86.intr_handler_addr(irq)
+            $idt[irq].selector = SLC_SYS_CODE
+        end
+
+        $idt[0xa2].type     = :sys_trap
+        $idt[0xa2].base     = X86.intr_handler_addr(0xa2)
+        $idt[0xa2].selector = SLC_SYS_CODE
+
+
+        $idt.load()
+    end
 end

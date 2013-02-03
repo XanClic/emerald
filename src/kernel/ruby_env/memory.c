@@ -36,17 +36,10 @@ def_memory_peek(8)
 def_memory_poke(8)
 def_memory_peek(16)
 def_memory_poke(16)
+def_memory_peek(32)
 def_memory_poke(32)
 def_memory_peek(64)
 def_memory_poke(64)
-
-    static mrb_value memory_peek32(mrb_state *mrbs, mrb_value self)
-    {
-        (void)self;
-        mrb_int address;
-        mrb_get_args(mrbs, "i", &address);
-        return mrb_fixnum_value(*((uint32_t *)address));
-    }
 
 static mrb_value memory_cstr(mrb_state *mrbs, mrb_value self)
 {

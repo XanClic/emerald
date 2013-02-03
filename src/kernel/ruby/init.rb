@@ -71,6 +71,7 @@ load 'cpu/gdt.rb'
 load 'cpu/idt.rb'
 
 load 'drivers/console.rb'
+load 'drivers/pic.rb'
 
 
 
@@ -111,13 +112,32 @@ end
 
 out.status('Changing to custom GDT...')
 
-build_gdt()
+GDT.init()
 
 out.done
 
 
 out.status('Loading IDT...')
 
-build_idt()
+IDT.init()
 
 out.done
+
+
+out.status('Initializing PIC...')
+
+PIC.init()
+
+out.done
+
+
+out.status('Enabling interrupts...')
+
+X86.sti()
+
+out.done
+
+
+while true
+    X86.hlt()
+end
