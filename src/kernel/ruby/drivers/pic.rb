@@ -17,4 +17,23 @@ module PIC
         single_init(0x20, 0x20, 1 << 2) # master
         single_init(0xa0, 0x28,      2) # slave
     end
+
+
+    def self.spurious?(vector)
+        return false unless (vector & 7) == 7
+        return false unless (PIO8[(vector >= 8) ? 0xa0 : 0x20] & 0x80) == 0
+
+        if vector >= 8
+            # Send EOI to master upon spurious interrupt on slave
+            eoi(2)
+        end
+
+        return true
+    end
+
+
+    def self.eoi(vector)
+        PIO8[0xa0] = 0x20 if vector >= 8
+        PIO8[0x20] = 0x20
+    end
 end
