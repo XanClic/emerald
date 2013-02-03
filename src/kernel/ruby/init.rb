@@ -65,8 +65,12 @@ load 'patches/string.rb'
 
 load 'helpers/struct.rb'
 
+load 'cpu/descs.rb'
+load 'cpu/desc_tables.rb'
+load 'cpu/gdt.rb'
+load 'cpu/idt.rb'
+
 load 'drivers/console.rb'
-load 'drivers/gdt.rb'
 
 
 
@@ -108,5 +112,12 @@ end
 out.status('Changing to custom GDT...')
 
 build_gdt()
+
+out.done
+
+
+out.status('Loading IDT...')
+
+build_idt()
 
 out.done
