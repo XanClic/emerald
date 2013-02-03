@@ -29,11 +29,25 @@ static mrb_value x86_lgdt(mrb_state *mrbs, mrb_value self)
 }
 
 
+static mrb_value x86_lidt(mrb_state *mrbs, mrb_value self)
+{
+    (void)self;
+
+    mrb_int address;
+    mrb_get_args(mrbs, "i", &address);
+
+    __asm__ __volatile__ ("lidt (%0)" :: "r"(address) : "memory");
+
+    return mrb_nil_value();
+}
+
+
 static void init(mrb_state *mrbs)
 {
     struct RClass *x86_mod = mrb_define_module(mrbs, "X86");
 
     mrb_define_module_function(mrbs, x86_mod, "lgdt", x86_lgdt, ARGS_REQ(3));
+    mrb_define_module_function(mrbs, x86_mod, "lidt", x86_lidt, ARGS_REQ(1));
 }
 
 
