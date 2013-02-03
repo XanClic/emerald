@@ -69,6 +69,7 @@ load 'cpu/descs.rb'
 load 'cpu/desc_tables.rb'
 load 'cpu/gdt.rb'
 load 'cpu/idt.rb'
+load 'cpu/intr.rb'
 
 load 'drivers/console.rb'
 load 'drivers/pic.rb'
@@ -129,15 +130,3 @@ out.status('Initializing PIC...')
 PIC.init()
 
 out.done
-
-
-out.status('Enabling interrupts...')
-
-X86.sti()
-
-out.done
-
-
-while true
-    X86.hlt()
-end

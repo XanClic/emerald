@@ -170,6 +170,30 @@ static mrb_value x86_hlt(mrb_state *mrbs, mrb_value self)
 }
 
 
+static mrb_value x86_cr2(mrb_state *mrbs, mrb_value self)
+{
+    (void)mrbs;
+    (void)self;
+
+    uint32_t ret;
+    __asm__ __volatile__ ("mov %%cr2,%0" : "=r"(ret));
+
+    return mrb_fixnum_value(ret);
+}
+
+
+static mrb_value x86_cr3(mrb_state *mrbs, mrb_value self)
+{
+    (void)mrbs;
+    (void)self;
+
+    uint32_t ret;
+    __asm__ __volatile__ ("mov %%cr3,%0" : "=r"(ret));
+
+    return mrb_fixnum_value(ret);
+}
+
+
 static void init(mrb_state *mrbs)
 {
     struct RClass *x86_mod = mrb_define_module(mrbs, "X86");
@@ -179,6 +203,8 @@ static void init(mrb_state *mrbs)
     mrb_define_module_function(mrbs, x86_mod, "intr_handler_addr", x86_iha,  ARGS_REQ(1));
     mrb_define_module_function(mrbs, x86_mod, "sti",               x86_sti,  ARGS_REQ(0));
     mrb_define_module_function(mrbs, x86_mod, "hlt",               x86_hlt,  ARGS_REQ(0));
+    mrb_define_module_function(mrbs, x86_mod, "cr2",               x86_cr2,  ARGS_REQ(0));
+    mrb_define_module_function(mrbs, x86_mod, "cr3",               x86_cr3,  ARGS_REQ(0));
 }
 
 
